@@ -1,0 +1,138 @@
+<?php
+
+	function clinical_detect($wiki_text){
+
+		$clinical_terms = array(
+"{{Infobox disease",
+"{{Infobox anatomy",
+"{{Infobox symptom",
+"{{Infobox scientist",
+"{{chembox",
+"GraySubject",
+"ICD10={{ICD10",
+"ICD9={{ICD9",
+"MedlinePlus=",
+"eMedicineSubj=",
+"eMedicineTopic",
+"MeshNumber",
+"DorlandsID",
+"[[Category:Organs]]",
+"{{Animal anatomy}}",
+"MedlinePlus",
+"[[Category:Symptoms and signs:",
+"|geneid=",
+"{{Human homeostasis}}",
+"{{Blood tests}}",
+"[[Category:Human homeostasis]]",
+"[[Category:Blood",
+"{{Expert-subject|Medicine",
+"eMedicineTopic",
+"{{MeshName",
+"{{Major drug groups}}",
+"{{Chromosome genetics}}",
+"{{Biology nav}}",
+"[[Category:Auxology",
+"[[Category:Anthropometry",
+"[[Category:Immunology",
+"[[Category:Autoimmune diseases",
+"{{System and organs}}",
+"{{Digestive glands}}",
+"{{Endocrine system}}",
+"{{endocrine_pancreas}}",
+"[[Category:Human pregnancy",
+"[[Category:Birth control",
+"[[Category:Reproduction in mammals",
+"[[Category:Obstetrics",
+"[[Category:Fertility",
+"{{Pregnancy",
+"{{Reproductive health",
+"{{Reproductive physiology",
+"{{Humandevelopment",
+"[[Category:Global health",
+"pathology}}",
+"[[Category:Cognition",
+"{{Taxobox",
+"{{Viral diseases",
+"{{PBB",
+"{{PDB Gallery",
+"[[Category:Disability",
+"[[Category:Podiatry",
+"[[Category:Orthopedic braces",
+"[[Category:Orthopedics",
+"[[Category:Skeletal system",
+"[[Category:Muscular system",
+"[[Category:Rehabilitation team",
+"[[Category:Orthopedic surgery",
+"PubChem_Ref",
+"ChemSpiderID",
+"EINECS",
+"KEGG_Ref",
+"ChEMBL",
+"ATCCode_",
+"StdInChI",
+"{{Biology",
+"{{Biochemical",
+"{{Infobox particle",
+"[[Category:Chemical elements",
+"[[Category:Drugs",
+"{{MolBioGeneExp",
+"{{Nucleic acids",
+"{{Genetics",
+"[[Category:DNA",
+"[[Category:Genetics",
+"[[Category:Oaths of medicine",
+"[[Category:Medical",
+"[[Category:Philosophy of medicine",
+"[[Category:Sequestering cells",
+"[[Category:Human cells",
+"proteins}}",
+"[[Category:Keratins",
+"[[Category:Cytoskeleton",
+"[[Category:Skin",
+"[[Category:Physiology",
+"Molecular and cellular biology}}",
+"[[Category:Ageing",
+"[[Category:Cellular",
+"[[Category:Gerontology",
+"[[Category:Molecular",
+"[[Category:Mutation",
+"[[Category:DNA repair",
+"[[Category:Senescence",
+"{{Immune system",
+"{{Lymphatic system",
+"{{System and organs",
+"{{Immune receptors",
+"Biology|Medicine}}",
+"Medicine|Biology}}",
+"{{Diets",
+"[[Category:Medical treatments",
+"[[Category:Syndromes",
+"[[Category:History of medicine",
+"{{History of medicine",
+"{{Protein topics",
+"[[Category:Proteins",
+"[[Category:Protein complexes",
+"[[Category:Organelles",
+"[[Category:Apoptosis",
+"[[Category:Biology",
+
+
+		);
+
+	$wiki_text = strtolower($wiki_text);
+	foreach($clinical_terms as $term){
+		$term = strtolower($term);
+		if(strpos($wiki_text,$term) !== false){
+			return(array('is_clinical' => true, 'because' => $term));
+		}
+	}
+
+	return(array('is_clinical' => false));
+
+	}
+
+
+
+
+
+?>
