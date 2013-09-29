@@ -1,0 +1,9 @@
+#ignore all cache and temporary files
+*tmp/*
+data/process/NPPES*
+data/process/npidata_20050523*
+data/process/DDS*
+public/state/*
+public/city/*
+#ignore all config files
+*.yaml
