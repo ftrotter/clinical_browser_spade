@@ -3,7 +3,7 @@
 <html>
   
   <head>
-    <title>Narrow Jumbotron</title>
+    <title>Clinical Browser Spade</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
@@ -107,22 +107,18 @@ In exchange, you will gain access the all of the urls donated by all of our user
 <form action='process_post.php' method='POST' enctype="multipart/form-data">
   <label class="form-label">You browse the web as:</label>
   <span class="help-block">Help text.</span>
-  <select class="form-control">
-    <option value='epatient'>E-Patient </option>
-    <option value='medstudent'>Medical Student</option>
-    <option value='gradstudent'>Graduate Student</option>
-    <option value='intern'>Medical Doctor: Intern</option>
-    <option value='resident'>Medical Doctor: Resident</option>
-    <option value='attending'>Medical Doctor: Attending</option>
-    <option value='doctor'>Medical Doctor: Practicing</option>
-    <option value='professor'>Medical School Professor</option>
+  <select class="form-control" name="user_type">
+    <option value='1'>E-Patient </option>
+    <option value='2'>Medical Student</option>
+    <option value='3'>Graduate Student</option>
+    <option value='4'>Medical Doctor: Intern</option>
+    <option value='5'>Medical Doctor: Resident</option>
+    <option value='6'>Medical Doctor: Attending</option>
+    <option value='7'>Medical Doctor: Practicing</option>
+    <option value='8'>Medical School Professor</option>
   </select>
-  <label class="form-label">Your email (will be your username)</label>
-  <input class="form-control" type="email">
-  <label class="form-label">Your password</label>
-  <input class="form-control" type="password">
   <div class="form-group">
-    <label for="inputFile">Your Browser History file  </label>
+    <label for="inputFile">Your Chrome Browser History file  </label>
     <input type="file" id="inputFile" name="inputFile" >
     <p class="help-block">Upload your browser history file.</p>
   </div>
