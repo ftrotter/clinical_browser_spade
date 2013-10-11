@@ -1,0 +1,67 @@
+<!doctype html>
+
+<html>
+  
+  <head>
+    <title>Tile Content</title>
+    <meta name="viewport" content="width=595">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/util.js"></script>
+
+	<script type='text/javascript'>
+
+
+	function swap_r(){
+
+		jah(	'random_urls.php',
+			'swap_me',
+			(function(){}));
+
+	}
+
+	</script>
+
+  </head>
+  
+  <body>
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+		Patients clinical understanding of this issue?  low
+<input type="radio" name="r" value="1" onChange="swap_r();"> 1 
+<input type="radio" name="r" value="2" onChange="swap_r();"> 2 
+<input type="radio" name="r" value="3" onChange="swap_r();"> 3 
+<input type="radio" name="r" value="4" onChange="swap_r();"> 4 
+<input type="radio" name="r" value="5" onChange="swap_r();"> 5 
+<input type="radio" name="r" value="6" onChange="swap_r();"> 6 
+<input type="radio" name="r" value="7" onChange="swap_r();"> 7 high 
+        </div>
+        <div></div>
+        <div class="panel-body">
+          <div class="row">
+            <div id='swap_me' class="col-xs-8">          
+         <ul class="list-group">
+            <li class="list-group-item">
+              <a href>Diabetes</a>
+            </li>
+            <li class="list-group-item">
+              <a href>Insulin</a>
+            </li>
+            <li class="list-group-item">
+              <a href>Pancreas</a>
+            </li>
+          </ul></div>
+            <div class="col-xs-2">          
+            <div class="btn-group-vertical">
+            <a class="btn btn-default">Need to See</a><a class="btn btn-default">Reply</a><a class="btn btn-default">Send Links</a>
+          </div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+
+</html>
