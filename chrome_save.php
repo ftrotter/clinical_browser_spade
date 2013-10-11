@@ -32,13 +32,15 @@
 	if($got_something){
 
 		$user_type = mysql_real_escape_string($_POST['user_type']);
+		$user_email = mysql_real_escape_string($_POST['user_email']);
 		$new_psuedo_user_sql = "
 INSERT INTO  `browser_spade`.`psuedo_users` (
 `id` ,
-`type_id`
+`type_id`,
+`email`
 )
 VALUES (
-NULL ,  '$user_type'
+NULL ,  '$user_type' , '$user_email'
 );
 ";
 
