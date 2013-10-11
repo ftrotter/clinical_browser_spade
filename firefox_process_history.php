@@ -94,9 +94,9 @@ function firefox_get_urls_from_threads($dbh,$threads){
 
 	$return_urls = array();
 	foreach($threads as $a_thread){
-		$url_id = mysql_real_escape_string($a_thread['url']);
+		$place_id = mysql_real_escape_string($a_thread['place_id']);
 	
-		$sql = "SELECT * FROM urls WHERE urls.id = $url_id";
+		$sql = "SELECT * FROM moz_places WHERE moz_places.id = $place_id";
 		foreach($dbh->query($sql) as $url_row){ //there should be only one...
 			$return_urls[$url_row['id']] = $url_row;
 		}
@@ -145,7 +145,7 @@ WHERE moz_historyvisits.place_id = $id";
 
 function firefox_fan_thread_down($dbh,$me){
         $me = mysql_real_escape_string($me);
-        $sql = "SELECT * FROM moz_historyvisits WHERE moz_histiryvisits.from_visit = $me";
+        $sql = "SELECT * FROM moz_historyvisits WHERE moz_historyvisits.from_visit = $me";
 	$return_array = array();
         foreach($dbh->query($sql) as $visit_row){ //there should be only one...
                 $id = $visit_row['id'];

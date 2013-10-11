@@ -32,13 +32,15 @@
 	if($got_something){
 
 		$user_type = mysql_real_escape_string($_POST['user_type']);
+		$user_email = mysql_real_escape_string($_POST['user_email']);
 		$new_psuedo_user_sql = "
 INSERT INTO  `browser_spade`.`psuedo_users` (
 `id` ,
-`type_id`
+`type_id`,
+`email`
 )
 VALUES (
-NULL ,  '$user_type'
+NULL ,  '$user_type', '$user_email'
 );
 ";
 
@@ -56,14 +58,12 @@ NULL ,  '$user_type'
 		foreach($big_array as $big_url_id => $smaller_array){
 	
 			$threads = $smaller_array['threads'];
-			$keywords = $smaller_array['keywords'];
         		$urls = $smaller_array['urls'];
 		
 			if(!isset($stuff_to_save[$big_url_id])){
 				$thread_count = count($threads);
-				$keywords_count = count($keywords);
 				$url_count = count($urls);
-				$total_facts_filtered_this_time = $thread_count + $keywords_count + $url_count;
+				$total_facts_filtered_this_time = $thread_count + $url_count;
 				$facts_filtered += $total_facts_filtered_this_time;
 				$urls_filtered += $url_count;
 				echo "<li class='list-group-item'>\n";
@@ -75,31 +75,27 @@ NULL ,  '$user_type'
 
 			foreach($threads as $thread_id => $this_thread){
 				$facts_added++;
-				$url_id = $this_thread['url'];
 				$visit_id = $this_thread['id'];
-				$visit_time = $this_thread['visit_time'];
 				$from_visit = $this_thread['from_visit'];
-				$transition = $this_thread['transition'];
-				$segment_id = $this_thread['segment_id'];
-				$is_indexed = $this_thread['is_indexed'];
-				$visit_duration = $this_thread['visit_duration'];
+				$place_id = $this_thread['place_id'];
+				$visit_date = $this_thread['visit_date'];
+				$visit_type = $this_thread['visit_type'];
+				$session = $this_thread['session'];
 
 				$thread_sql = "
-INSERT INTO  `browser_spade`.`chrome_visits` (
+INSERT INTO  `browser_spade`.`firefox_moz_historyvisits` (
 `id` ,
 `puser_id` ,
 `visit_id` ,
-`url_id` ,
-`visit_time` ,
 `from_visit` ,
-`transition` ,
-`segment_id` ,
-`is_indexed` ,
-`visit_duration`
+`place_id` ,
+`visit_date` ,
+`visit_type` ,
+`session` 
 )
 VALUES (
-NULL ,  '$puser_id',  '$visit_id',  '$url_id',  '$visit_time',  
-	'$from_visit', '$transition',  '$segment_id',  '$is_indexed',  '$visit_duration'
+NULL ,  '$puser_id',  '$visit_id',  '$from_visit', '$place_id',  '$visit_date',  
+	'$visit_type', '$session'
 );
 ";
 				mysql_query($thread_sql) or die("Could not add thread with $thread_sql <br>".mysql_error());
@@ -110,64 +106,46 @@ NULL ,  '$puser_id',  '$visit_id',  '$url_id',  '$visit_time',
 
 				$facts_added++;
 				$urls_added++;
-                                $url_id = $this_url['id'];
+                                $place_id = $this_url['id'];
                                 $url = mysql_real_escape_string($this_url['url']);
                                 $title = mysql_real_escape_string($this_url['title']);
+                                $rev_host = mysql_real_escape_string($this_url['rev_host']);
                                 $visit_count = $this_url['visit_count'];
-                                $typed_count = $this_url['typed_count'];
-                                $last_visit_time = $this_url['last_visit_time'];
                                 $hidden = $this_url['hidden'];
+                                $typed = $this_url['typed'];
                                 $favicon_id = $this_url['favicon_id'];
+                                $frecency = $this_url['frecency'];
+                                $last_visit_date = $this_url['last_visit_date'];
+                                $guid = $this_url['guid'];
 
                                 $url_sql = "
-INSERT INTO  `browser_spade`.`chrome_urls` (
+INSERT INTO  `browser_spade`.`firefox_moz_places` (
 `id` ,
 `puser_id` ,
-`url_id` ,
+`place_id` ,
 `url` ,
 `title` ,
+`rev_host` ,
 `visit_count` ,
-`typed_count` ,
-`last_visit_time` ,
 `hidden` ,
-`favicon_id`
+`typed` ,
+`favicon_id` ,
+`frecency` ,
+`last_visit_date` ,
+`guid`
 )
 VALUES (
-NULL,  	'$puser_id',  '$url_id',  '$url',  '$title',  
-	'$visit_count',  '$typed_count',  '$last_visit_time',  
-	'$hidden',  '$favicon_id'
+NULL,  	'$puser_id',  '$place_id',  '$url',  '$title',  
+	'$rev_host', '$visit_count',  '$hidden', '$typed',  '$favicon_id', 
+	'$frecency', '$last_visit_date', '$guid' 
 );
 ";
-                                mysql_query($url_sql) or die("Could not add url with $url_sql <br>".mysql_error());
+                                mysql_query($url_sql) or die("Could not add place with $url_sql <br>".mysql_error());
 
                         }
 
-                        foreach($keywords as $keyword_id => $this_keyword){
-
-				$facts_added++;
-                                $old_keyword_id = $this_keyword['id'];
-                                $url_id = $this_keyword['url_id'];
-                                $keyword_id = $this_keyword['keyword_id'];
-                                $lower_term = mysql_real_escape_string($this_keyword['lowerterm']);
-                                $term = mysql_real_escape_string($this_keyword['term']);
-				$keyword_sql = "
-INSERT INTO  `browser_spade`.`chrome_keywords` (
-`id` ,
-`puser_id` ,
-`keyword_id` ,
-`url_id` ,
-`lower_term` ,
-`term`
-)
-VALUES (
-NULL ,  '$puser_id',  '$keyword_id',  '$url_id',  '$lower_term',  '$term'
-);
-";
-
-                                mysql_query($keyword_sql) or die("Could not add keyword with $keyword_sql <br>".mysql_error());
 				
 
-		}
 	}
 }
 

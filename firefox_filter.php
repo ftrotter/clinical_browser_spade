@@ -14,30 +14,27 @@ echo '
 <ul class="list-group">
 ';
 
-echo "<pre>";
-
-var_export($big_array);
-
-echo "</pre>";
-
 
 foreach($big_array as $big_url_id => $smaller_array){
 
 	$threads = $smaller_array['threads'];
-	$urls = $smaller_array['urls'];
+	$places = $smaller_array['urls'];
 
-	$big_url = $urls[$big_url_id]['url'];
+	$big_url = $places[$big_url_id]['url'];
 
 	echo "<li class='list-group-item'>\n";
 	echo "<h3> From $big_url </h3>\n";
 	echo '<ul class="list-group">';
 	foreach($threads as $thread_id => $this_thread){
 		echo "<li class='list-group-item'>\n";
-		$url_id = $this_thread['url'];
-		$url_label = $urls[$url_id]['url'];
-		$url_title = $urls[$url_id]['title'];
-		$my_label = "<abbr title='$url_label'><a href='$url_label'>$url_title</a> </abbr>";
-		echo get_checkbox($big_url_id,$my_label,$url_id);		
+		$place_id = $this_thread['place_id'];
+		$place_label = $places[$place_id]['url'];
+		$place_title = $places[$place_id]['title'];
+		if(strlen($place_title) < 5){
+			$place_title .= ' '.$place_label;
+		}
+		$my_label = "<abbr title='$place_label'><a href='$place_label'>$place_title</a> </abbr>";
+		echo get_checkbox($big_url_id,$my_label,$place_id);		
 		
 		echo "</li>";
 	}
