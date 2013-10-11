@@ -1,13 +1,19 @@
 <?php
 	require_once('config.php');
-
 	session_start();	
+
+	require_once('header.php');
+
 	$big_array = $_SESSION['big_array'];
 	$got_something = false;
 	$stuff_to_save = array();
 	foreach($big_array as $big_url_id => $smaller_array){
 
-		$checks = $_POST['url_'.$big_url_id];
+		if(isset($_POST['url_'.$big_url_id])){
+			$checks = $_POST['url_'.$big_url_id];
+		}else{
+			$checks = array();
+		}
 		$ok = true;
 		foreach($checks as $key => $value){
 			if($value == 0){
@@ -41,18 +47,34 @@ NULL ,  '$user_type'
 
 		$puser_id = mysql_insert_id();
 
+		echo "<h1> All data connected to the following urls has been filtered </h1>\n";
+		echo '<ul class="list-group">';
+		$facts_added = 0;
+		$facts_filtered = 0;
+		$urls_added = 0;
+		$urls_filtered = 0;
 		foreach($big_array as $big_url_id => $smaller_array){
 	
+			$threads = $smaller_array['threads'];
+			$keywords = $smaller_array['keywords'];
+        		$urls = $smaller_array['urls'];
+		
 			if(!isset($stuff_to_save[$big_url_id])){
+				$thread_count = count($threads);
+				$keywords_count = count($keywords);
+				$url_count = count($urls);
+				$total_facts_filtered_this_time = $thread_count + $keywords_count + $url_count;
+				$facts_filtered += $total_facts_filtered_this_time;
+				$urls_filtered += $url_count;
+				echo "<li class='list-group-item'>\n";
+				echo "$url_count urls  related to <br>".$urls[$big_url_id]['url'] . "<br> has been filtered. Not Saved."; 
+				echo "</li>";
 				continue; // we do not save if the user cleaned the data...
 			}
 			//ok then we are saving this thread!!
-			$threads = $smaller_array['threads'];
-        		$urls = $smaller_array['urls'];
-			$keywords = $smaller_array['keywords'];
 
 			foreach($threads as $thread_id => $this_thread){
-
+				$facts_added++;
 				$url_id = $this_thread['url'];
 				$visit_id = $this_thread['id'];
 				$visit_time = $this_thread['visit_time'];
@@ -86,6 +108,8 @@ NULL ,  '$puser_id',  '$visit_id',  '$url_id',  '$visit_time',
 
                         foreach($urls as $url_id => $this_url){
 
+				$facts_added++;
+				$urls_added++;
                                 $url_id = $this_url['id'];
                                 $url = mysql_real_escape_string($this_url['url']);
                                 $title = mysql_real_escape_string($this_url['title']);
@@ -120,6 +144,7 @@ NULL,  	'$puser_id',  '$url_id',  '$url',  '$title',
 
                         foreach($keywords as $keyword_id => $this_keyword){
 
+				$facts_added++;
                                 $old_keyword_id = $this_keyword['id'];
                                 $url_id = $this_keyword['url_id'];
                                 $keyword_id = $this_keyword['keyword_id'];
@@ -146,5 +171,18 @@ NULL ,  '$puser_id',  '$keyword_id',  '$url_id',  '$lower_term',  '$term'
 	}
 }
 
+echo "</ul>";
+echo "<h1>Thank you!!</h1>\n";
+echo "<h3> A total of $urls_added discrete URLs where added 
+while $urls_filtered URLs where filtered as the result of your donation.</h3>
+	";
 
+echo "<p> We are still building the tool that allows you to browse our data. 
+	Be sure to email me at fred.trotter at (that email service google makes)
+	dot com to get your access. 
+	We have no way of knowing if you actually submitted data to us (we keep no records at all) 
+	so we will just take your word for it...
+	We have special privileges coming for medical students, so be sure to mention if you are currently in medical school!! </p>
+";
 
+require_once('footer.php');

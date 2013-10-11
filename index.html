@@ -36,12 +36,6 @@
         color: #777;
         border-top: 1px solid #e5e5e5;
       }
-      /* Customize container */
-      @media(min-width: 768px) {
-        .container {
-          max-width: 730px;
-        }
-      }
       .container-narrow > hr {
         margin: 30px 0;
       }
@@ -88,25 +82,57 @@
             <a href="#">Home</a>
           </li>
           <li>
-            <a href="#">Sourcecode</a>
+            <a href="trust.html">Trust us  much?</a>
           </li>
           <li>
-            <a href="#">DocGraph</a>
+            <a href="https://github.com/ftrotter/clinical_browser_spade">Sourcecode</a>
+          </li>
+          <li>
+            <a href="http://DocGraph.org">DocGraph</a>
           </li>
         </ul>
-        <h3 class="text-muted">Clinical Browser Spade<br></h3>
+        <h3 class="text-muted">Clinical Browser Spade <span class="label label-danger">Beta!</span></h3>
       </div>
       <div class="jumbotron">
-        <h2>Mine your browser.</h2> 
-	<h1>Mine your brain.</h1>
+        <h2>Mine your browser for clinical data.</h2> 
+	<h1>Join the best clinical bookmark site ever!</h1>
         <p class="lead">
-<span class="label label-danger">Warning Beta!</span><br> 
 Please donate the clinical url paths from your browser history to our url graph. 
-In exchange, you will gain access the all of the urls donated by all of our users.
- Of course, this will eventually result in an Open Data set, because thats how we roll.</p>
+In exchange, you will gain access to all of the urls donated by all of our users.
+ Of course, this will eventually result in an Open Data set, because that's how we roll.</p>
+
+        <div class="row">
+          <div class="col-md-4">
+              <div class="well">
+		<h2>1. Anonomyously upload your browser history</h2>
+		<p> Don't worry, its 100% anonymous and we throw 90% away in any case. Don't believe us? Check out the 
+<a href='https://github.com/ftrotter/clinical_browser_spade'>sourcecode!</a> </p>
+		</div>        
+          </div>
+          <div class="col-md-4">
+            <div class="well">
+		<h2>2. We filter everything except Clinical Data!</h2>
+		<p> We use Wikipedia's API and clinical coding 
+	to sort out which of your browsing threads 
+	are probably clinical. But you don't have to trust our filters...</p>
+		</div>
+          </div>
+          <div class="col-md-4">
+            <div class="well">
+		<h2>3. You get final Veto!</h2>
+		<p> 
+	AFTER we filter but BEFORE we save anything to our database, 
+	you get to veto anything you want or halt the whole process!!!
+	You can remove anything you want from your upload!
+ </p>
+
+</div>
+          </div>
+        </div>
+	<h1> Are you ready to do this?? </h1>
+
 <form action='process_post.php' method='POST' enctype="multipart/form-data">
   <label class="form-label">You browse the web as:</label>
-  <span class="help-block">Help text.</span>
   <select class="form-control" name="user_type">
     <option value='1'>E-Patient </option>
     <option value='2'>Medical Student</option>
@@ -118,9 +144,8 @@ In exchange, you will gain access the all of the urls donated by all of our user
     <option value='8'>Medical School Professor</option>
   </select>
   <div class="form-group">
-    <label for="inputFile">Your Chrome Browser History file  </label>
+    <label for="inputFile">Your Chrome Browser History file <a href='#find_it'>(trouble finding it?)</a>  </label>
     <input type="file" id="inputFile" name="inputFile" >
-    <p class="help-block">Upload your browser history file.</p>
   </div>
 <input type="hidden" name="MAX_FILE_SIZE" value="10000000" />
   <button type="submit" class="btn btn-default">Submit</button>
@@ -132,7 +157,91 @@ In exchange, you will gain access the all of the urls donated by all of our user
   <h4>How we anonymize your browser history...<br></h4>
   <p>Its simple, Wikipedia codes its websites with clinical ontologies. We search your browser history and we only include searches that included visits to clinical pages... and we throw away everything else. But why trust us... click the sourcecode link on the main menu to take a look at the sourcecode for this website. You can also look at our data about which parts of wikipedia are clinical. Most importantly, we show you the results of our process our filtering.. so you can manually exclude anything you like from the ultimate upload!</p>
   <p>For more information about who we are and what we are about, visit the <a href='http://docgraph.org'>DocGraph Journal</a>.</p>
-        </div>
+<h4>Chrome Browser history location hints </h4> 
+<a name='find_it'></a>
+<ul class="list-group">
+	<li class='list-group-item'>
+	<h3>On Windows</h3>
+	<ul class="list-group">
+		<li class='list-group-item'>
+		On Windows XP: 
+		C:\Documents and Settings\USERNAME\Local Settings\Application Data\Google\Chrome\User Data\Default\History
+		</li>
+		<li class='list-group-item'>
+		On Windows VistA and later:
+		C:\Users\USERNAME\AppData\Local\Google\Chrome\User Data\Default\History
+		</li>
+	</ul>	
+	</li>
+	<li class='list-group-item'>
+	<h3>On OSX</h3> 
+
+	<p>You are looking for a file called "History". 
+On different versions of OSX, it lives in different places. 
+Usually under the Library directory off of the home directory somewhere. 
+Remember that ~/Library can be a hidden directory!
+Here are <a href=''>video instruction</a> to find the file!
+	</p>
+	<ul class="list-group">
+		<li class='list-group-item'>
+		~/Library/Caches/Google/Chrome/Default/History
+		</li>
+		<li class='list-group-item'>
+		~/Library/Application Support/Google/Chrome/Default/History
+		</li>
+		<li class='list-group-item'>
+		~/Library/Caches/RockMelt/Default/History
+		</li>
+	</ul>		
+	<li class='list-group-item'>
+	<h3>On Linux</h3>
+	<ul class="list-group">
+		<li class='list-group-item'>
+		You use this operating system because you can figure it out on your own 
+(its under one of the hidden '.' directories under your home directory)
+		</li>
+	</ul>	
+</ul>
+<h4>Firefox Browser history location hints </h4>
+<a name='find_it'></a>
+<ul class="list-group">
+        <li class='list-group-item'>
+        <h3>On Windows</h3>
+        <ul class="list-group">
+                <li class='list-group-item'>
+                On Windows XP:
+                C:\Documents and Settings\USERNAME\Local Settings\Application Data\Firefox\Profiles\RANDOMTEXT\places.sqlite
+                </li>
+                <li class='list-group-item'>
+                On Windows VistA and later:
+                C:\Users\USERNAME\AppData\Mozilla\Firefox\Profiles\RANDOMTEXT\places.sqlite
+                </li>
+        </ul>
+        </li>
+        <li class='list-group-item'>
+        <h3>On OSX</h3>
+
+        </p>
+        <ul class="list-group">
+                <li class='list-group-item'>
+                ~/Library/Application Support/Firefox/Profiles/RANDOMTEXT/places.sqlite
+                </li>
+        </ul>
+        <li class='list-group-item'>
+        <h3>On Linux</h3>
+        <ul class="list-group">
+                <li class='list-group-item'>
+                You use this operating system because you can figure it out on your own
+(its under one of the hidden '.' directories under your home directory)
+                </li>
+        </ul>
+
+
+
+</ul>
+
+
+       </div>
       </div>
       <div class="footer">
         <p>&copy; Company 2013</p>

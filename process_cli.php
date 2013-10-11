@@ -1,6 +1,6 @@
 <?php
 
-require_once('process_history.php');
+require_once('chrome_process_history.php');
 
 if(isset($argv[1])){
 	$target_path = $argv[1];
@@ -9,7 +9,7 @@ if(isset($argv[1])){
 	exit();
 }
 
-$big_array = process_history_file($target_path);
+$big_array = chrome_process_history_file($target_path);
 
 $big_threads = array();
 foreach($big_array as $inside_array){//lets merge the threads and the url and make a flat file!!

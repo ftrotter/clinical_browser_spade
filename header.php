@@ -87,14 +87,17 @@ echo '
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li class="active">
-            <a href="#">Home</a>
+          <li>
+            <a href="index.html">Home</a>
           </li>
           <li>
-            <a href="#">Sourcecode</a>
+            <a href="trust.html">Trust us much?</a>
           </li>
           <li>
-            <a href="#">DocGraph</a>
+            <a href="https://github.com/ftrotter/clinical_browser_spade/">Sourcecode</a>
+          </li>
+          <li>
+            <a href="http://DocGraph.org">DocGraph</a>
           </li>
         </ul>
         <h3 class="text-muted">Clinical Browser Spade<br></h3>

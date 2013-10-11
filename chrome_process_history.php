@@ -1,7 +1,7 @@
 <?php
 
 
-function process_history_file($filename){
+function chrome_process_history_file($filename){
 
         //first lets get all of the URLs that are from Wikipedia!!!
 try {
@@ -12,7 +12,7 @@ catch(PDOException $e)
     {
     	echo $e->getMessage();
 	echo "Could not open the file for some reason... damn.";
-	unlink($target_path);
+	unlink($filename);
 	exit();
     }
 
@@ -37,8 +37,8 @@ catch(PDOException $e)
   $re11='.*?';  # Non-greedy match on filler
   $re12='((?:[a-z][a-z0-9_]*))';        # Variable Name 1
 
-//this gets all of the urls...
-  $sql = "SELECT * FROM urls";
+
+ $sql = "SELECT * FROM urls";
 
 $the_stuff_we_keep = array();
 
@@ -68,9 +68,9 @@ foreach ($dbh->query($sql) as $row){
 	$is_clinical = $is_clinical_array['is_clinical'];	
 
 	if($is_clinical){
-		$keywords = get_keywords($dbh,$row);
-		$threads = get_threads($dbh,$row);
-		$urls = get_urls_from_threads($dbh,$threads);
+		$keywords = chrome_get_keywords($dbh,$row);
+		$threads = chrome_get_threads($dbh,$row);
+		$urls = chrome_get_urls_from_threads($dbh,$threads);
 		//this is what we put in our bug array!!
 		$the_stuff_we_keep[$row['id']] = array(
 			'threads' => $threads,
@@ -91,7 +91,7 @@ foreach ($dbh->query($sql) as $row){
 	return($the_stuff_we_keep);
 } //end process function...
 
-function get_urls_from_threads($dbh,$threads){
+function chrome_get_urls_from_threads($dbh,$threads){
 
 	$return_urls = array();
 	foreach($threads as $a_thread){
@@ -107,7 +107,7 @@ function get_urls_from_threads($dbh,$threads){
 
 }
 
-function get_keywords($dbh, $url_row){
+function chrome_get_keywords($dbh, $url_row){
 
 	$id = $url_row['id'];
 	$sql = "SELECT * FROM keyword_search_terms 
@@ -122,7 +122,7 @@ WHERE keyword_search_terms.url_id = $id";
 }
 
 
-function get_threads($dbh, $url_row){
+function chrome_get_threads($dbh, $url_row){
 
 	$id = $url_row['id'];
 	$sql = "SELECT * FROM visits 
@@ -133,7 +133,7 @@ WHERE visits.url = $id";
 
 		$from_visit_id = $visit_row['from_visit'];
 		if($from_visit_id != 0){
-			$starting_visit = climb_thread_up($dbh,$from_visit_id);
+			$starting_visit = chrome_climb_thread_up($dbh,$from_visit_id);
 		}else{
 			$starting_visit = $visit_row;
 		}
@@ -144,7 +144,7 @@ WHERE visits.url = $id";
 	$all_relevant_visits = array();
 	foreach($all_starting_threads as $a_starting_visit){
 		$all_relevant_visits[$a_starting_visit['id']] = $a_starting_visit;
-		$fan_results = fan_thread_down($dbh,$a_starting_visit['id']);
+		$fan_results = chrome_fan_thread_down($dbh,$a_starting_visit['id']);
 		if(count($fan_results) > 0){
 			$all_relevant_visits = array_replace_recursive(
 					$all_relevant_visits,
@@ -158,7 +158,7 @@ WHERE visits.url = $id";
 
 }
 
-function fan_thread_down($dbh,$me){
+function chrome_fan_thread_down($dbh,$me){
         $me = mysql_real_escape_string($me);
         $sql = "SELECT * FROM visits WHERE visits.from_visit = $me";
 	$return_array = array();
@@ -166,7 +166,7 @@ function fan_thread_down($dbh,$me){
                 $id = $visit_row['id'];
 		// echo "+ $id ";
 		$return_array[$id] = $visit_row;
-		$fan_results = fan_thread_down($dbh,$id);
+		$fan_results = chrome_fan_thread_down($dbh,$id);
 		if(count($fan_results) > 0){
                 	$return_array = array_replace_recursive(
 					$return_array,
@@ -180,14 +180,14 @@ function fan_thread_down($dbh,$me){
 
 
 
-function climb_thread_up($dbh,$me){
+function chrome_climb_thread_up($dbh,$me){
 	$me = mysql_real_escape_string($me);
 	$sql = "SELECT * FROM visits WHERE visits.id = $me";
 	foreach($dbh->query($sql) as $visit_row){ //there should be only one...
 		$from_visit = $visit_row['from_visit'];
 		if($from_visit != 0){
 		//	echo "rec->$from_visit   ";
-			return(climb_thread_up($dbh,$from_visit));
+			return(chrome_climb_thread_up($dbh,$from_visit));
 		}else{
 		//	echo "<- done \n";
 			return($visit_row);
