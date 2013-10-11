@@ -100,7 +100,7 @@
 Please donate the clinical url paths from your browser history to our url graph. 
 In exchange, you will gain access to all of the urls donated by all of our users.
  Of course, this will eventually result in an Open Data set, because that's how we roll.</p>
-
+<iframe src="//player.vimeo.com/video/76684699" width="500" height="381" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
         <div class="row">
           <div class="col-md-4">
               <div class="well">
@@ -135,20 +135,24 @@ In exchange, you will gain access to all of the urls donated by all of our users
   <label class="form-label">You browse the web as:</label>
   <select class="form-control" name="user_type">
     <option value='1'>E-Patient </option>
-    <option value='2'>Medical Student</option>
+    <option selected value='2'>Medical Student</option>
     <option value='3'>Graduate Student</option>
     <option value='4'>Medical Doctor: Intern</option>
     <option value='5'>Medical Doctor: Resident</option>
     <option value='6'>Medical Doctor: Attending</option>
     <option value='7'>Medical Doctor: Practicing</option>
     <option value='8'>Medical School Professor</option>
+    <option value='9'>Test User (all data will be thrown away)</option>
   </select>
   <div class="form-group">
-    <label for="inputFile">Your Chrome Browser History file <a href='#find_it'>(trouble finding it?)</a>  </label>
+    <label for="inputFile">Your Medical School email address:  </label><br>
+    <input type='email' name='user_email' id='user_email'>
+    <label for="inputFile">Your Chrome/Firefox Browser History file <a href='#find_it'>(trouble finding it?)</a>  </label>
     <input type="file" id="inputFile" name="inputFile" >
   </div>
 <input type="hidden" name="MAX_FILE_SIZE" value="10000000" />
   <button type="submit" class="btn btn-default">Submit</button>
+<p> Note: You are sending us lots of data here. It will take time to upload and time to process... be patient and don't click the back button!!!</p>
 </form>
 <p></p>
 </div>
