@@ -5,9 +5,43 @@
 	if(isset($_GET['title'])){
 		$title = mysql_real_escape_string($_GET['title']);
 	}else{
-		echo "no title. fail.";
-		exit();
+
+		if(isset($_GET['wiki_url'])){
+			$wiki_url = urldecode($_GET['wiki_url']);
+			$mined_title = get_wiki_title($wiki_url);
+			if($mined_title){
+				$title = mysql_real_escape_string($mined_title);
+			}else{
+				echo "system only works for wikipedia urls\n";
+				exit();
+			}		
+	
+		}else{
+				echo "Either the title or wiki_url needs to be set (wiki_url is urlencoded)\n";
+				exit();
+		}
+
 	}
+
+
+        function get_wiki_title($url){
+
+                $url_array = explode('/',$url);
+
+                $title = array_pop($url_array);
+
+                $the_http = array_shift($url_array);
+                $nothing = array_shift($url_array);
+                $domain = array_shift($url_array);
+
+                if(strpos($domain,'wikipedia') !== false){
+                        return($title);
+                }else{
+                        return(false);
+                }
+    
+        }
+
 
 	//first we check to see if we have a cache...
 
