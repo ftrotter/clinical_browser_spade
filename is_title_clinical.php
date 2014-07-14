@@ -12,12 +12,16 @@
 			if($mined_title){
 				$title = mysql_real_escape_string($mined_title);
 			}else{
-				echo "system only works for wikipedia urls\n";
+				$final_result = array('is_clinical' => false, 'note' => 'not a wikipedia url');
+				$json_result = json_encode($final_result);
+				echo $json_result;
 				exit();
 			}		
 	
 		}else{
-				echo "Either the title or wiki_url needs to be set (wiki_url is urlencoded)\n";
+				$final_result = array('is_clinical' => false, 'note' => 'you got the arguments wrong');
+				$json_result = json_encode($final_result);
+				echo $json_result;
 				exit();
 		}
 
