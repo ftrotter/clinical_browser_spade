@@ -1,4 +1,36 @@
 <?php
+
+/* 
+	This file will return a "yes" "no" "fail" in answer to the question "Is this wikipedia page clinical?"
+	There are two different ways to query, either you send in a GET title directly like this:
+
+	http://spade.yourhost.com/is_title_clinical.php?title=Diabetes_mellitus
+
+	or the preferred method is to send in the full wikipedia url using the wiki_url GET variable (url_encoded);
+
+	http://spade.yourhost.com/is_title_clinical.php?wiki_url=http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FDiabetes_mellitus
+
+	Both work equally well... and will result in:
+
+	either
+
+	{"is_clinical":true}
+
+	or
+
+	{"is_clinical":false} 
+
+	or if you really screw up:
+
+	{"is_clinical":false,"note":"you got the arguments wrong"}
+	
+
+
+
+*/
+
+	header('Content-Type: application/json');
+
 	require_once('config.php');
 	require_once('clinical_detect_function.php');
 	
