@@ -64,11 +64,15 @@
 
                 $url_array = explode('/',$url);
 
-                $title = array_pop($url_array);
+//                $title = array_pop($url_array); //this does not work for things like HIV/AIDS
 
                 $the_http = array_shift($url_array);
                 $nothing = array_shift($url_array);
                 $domain = array_shift($url_array);
+
+		$the_word_wiki = array_shift($url_array);
+		$title = implode('/',$url_array); //should account for HIV/AIDS
+
 
                 if(strpos($domain,'wikipedia') !== false){
                         return($title);
@@ -101,18 +105,19 @@ WHERE `wiki_title` LIKE '$title'";
 	}else{
 		//we have not seen this url.. we need to use the wikipedia API
 		//to see if this is a clinical url...
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_USERAGENT, 
-			'PicAxe/1.0 (http://www.fredtrotter.com/; fred.trotter@gmail.com)');
 
-		$api_url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles=$title";
-		$api_url .= "&prop=revisions&rvprop=content";
-        	curl_setopt($ch, CURLOPT_URL, $api_url);
-        	$result = curl_exec($ch);
-        	if (!$result) {
-                	exit('cURL Error: '.curl_error($ch));
-        	}
+	
+		$result = download_wiki_result($title);
+
+		if(is_redirect($result)){ //sometimes wiki pages are just stubs that redirect
+					//the web user just sees the right page...
+					//but the API actually returns the redirect...
+
+			$redirect_to = get_redirect($result); //this returns the title that the orginal title redirects to..
+			$result = download_wiki_result($redirect_to); //this returns the wiki_json for the right title.
+
+		}
+
 		$clinical_detect = clinical_detect($result);
 		if($clinical_detect['is_clinical']){
 			$because = $clinical_detect['because'];
@@ -129,10 +134,13 @@ WHERE `wiki_title` LIKE '$title'";
 `id` ,
 `wiki_title` ,
 `is_clinical`,
-`because`
+`because`,
+`last_checked`
 )
 VALUES (
-NULL , '$title', '$clinical','$because'
+NULL , 
+'$title', '$clinical','$because',
+NULL
 );";
 
 		mysql_query($save_sql) or die("Could not save with $save_sql".mysql_error());
@@ -148,4 +156,51 @@ NULL , '$title', '$clinical','$because'
 
 	echo $json_result;
 	exit();
+
+
+function is_redirect($wiki_json){
+
+	$redirect_string = '"#REDIRECT ';
+	if(strpos($wiki_json,$redirect_string) !== false){
+		return(true); // we found the string, which means this is a redirect file...
+	}else{
+		return(false);
+	}
+}
+
+function get_redirect($wiki_json){
+
+	preg_match_all('/\[\[(.+?)\]\]/u',$wiki_json,$matches); // find any string inside the [[ ]] which form wiki links...
+
+	if(!isset($matches[1][0])){
+		echo json_encode(array('result' => 'error','problem' => 'regex fail on redirect'));
+		exit();
+	}
+		
+	$new_string = $matches[1][0];
+
+	return($new_string); //we return only the first match... 
+
+}
+
+function download_wiki_result($title){
+
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                curl_setopt($ch, CURLOPT_USERAGENT,
+                        'PicAxe/1.0 (http://www.fredtrotter.com/; fred.trotter@gmail.com)');
+
+                $api_url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles=$title";
+                $api_url .= "&prop=revisions&rvprop=content";
+                curl_setopt($ch, CURLOPT_URL, $api_url);
+                $result = curl_exec($ch);
+                if (!$result) {
+                        exit('cURL Error: '.curl_error($ch));
+                }
+
+		return($result);
+
+}
+
 
