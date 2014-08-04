@@ -5,23 +5,48 @@
 
 		$url_tree = mysql_real_escape_string($_POST['url_tree']);
 		$user_token = mysql_real_escape_string($_POST['user_token']);
+
+		$url_tree_obj = json_decode($url_tree);
+		$url_tree_json_dump = var_export($url_tree_json,true);
+		$url_tree_dump = var_export($url_tree,true);
+
+		$url_string = "
+url_tree: $url_tree
+url_tree_dump: $url_tree_dump
+url_tree_obj: $url_tree_obj
+url_tree_json_dump: $url_tree_json_dump
+";
+
 		
 	$sql = "
 INSERT INTO  `browser_spade`.`json_trees` (
 `id` ,
 `tree_json`,
-`user_token`
+`user_token`,
+`upload_time`
 )
 VALUES (
-NULL ,  '$url_tree', '$user_token'
+NULL ,  
+'$url_string', '$user_token',
+NULL
 );
 ";
 
 
 		mysql_query($sql) or die("could not save sql $sql\n".mysql_error());
 
-		echo json_encode(array('result' => 'saved'));
+		if(isset($_POST('echo')){
+			if($_POST['echo']){			
+						
+				$url_tree_obj->result = 'saved';
+				echo json_encode($url_tree_obj);				
 
+			}else{
+				echo json_encode(array('result' => 'saved'));
+			}
+		}else{
+			echo json_encode(array('result' => 'saved'));
+		}
 	}else{
 
 		echo "
