@@ -20,14 +20,17 @@ CREATE TABLE IF NOT EXISTS `json_trees` (
 
 		$url_tree = $_POST['url_tree'];
 
-		if(!isJson($url_tree){
-			echo json_encode(array('result' => 'error', 'problem' => 'url_tree is not vaild json');
+		if(!isJson($url_tree)){
+			echo json_encode(array('result' => 'error', 'problem' => 'url_tree is not vaild json'));
 			exit();
 
 		}
 
 
 		$url_tree_obj = json_decode($url_tree);
+
+
+//This is an attempt to debug what the client is sending...
 		$url_tree_json_dump = var_export($url_tree_obj,true);
 		$url_tree_dump = var_export($url_tree,true);
 
@@ -37,10 +40,9 @@ url_tree_dump: $url_tree_dump
 url_tree_json_dump: $url_tree_json_dump
 ";
 
-		$url_string = mysql_real_escape_string($url_string); //use this for testing...
+//		$url_string = mysql_real_escape_string($url_string); //use this for testing...
 		
 		$url_string = mysql_real_escape_string($url_tree);
-
 		$user_token = mysql_real_escape_string($_POST['user_token']);
 		
 	$sql = "
@@ -63,17 +65,25 @@ NULL
 		if(isset($_POST['echo'])){
 			if($_POST['echo']){			
 						
-				$url_tree_obj->result = 'saved';
+				//echo the uploaded json 
+				$url_tree_obj->result = 'saved'; //with the addition of result = saved
 				echo json_encode($url_tree_obj);				
-
+				exit();
 			}else{
+				//we have an echo that does not evalute to true...
+				//just show success.
 				echo json_encode(array('result' => 'saved'));
+				exit();
 			}
 		}else{
+			//no echo just show success
 			echo json_encode(array('result' => 'saved'));
+			exit();
 		}
 	}else{
 
+
+//this shows a test form that can be used to test to see if this script is functioning correctly..
 		echo "
 <html><head><title>treepost test form</title></head><body>
 
