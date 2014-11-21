@@ -5,8 +5,25 @@
 
 	$title = $_GET['title'];
 
+	
+	if(isset($_GET['oldid'])){
+		$id_to_get = $_GET['oldid'];
+	}else{
+		$id_to_get = 0;
+	}
 
-	$json = download_wiki_result($title);
+	$json = download_wiki_result($title,$id_to_get);
+	//first lets check the cache...
+
+	$tmp_file = "./tmp/$title.$id_to_get.json";
+
+	if(file_exists($tmp_file)){ //lets use the cache...
+		$title_json = file_get_contents($tmp_file);		
+		header('Content-Type: application/json');
+		echo $title_json;
+		exit();
+	}
+
 
 	$wiki_text = get_wikitext_from_json($json);
 
@@ -159,35 +176,40 @@ foreach($all_templates as $line_number => $this_template_array){
 					//then this is the pmid = XXXX block...
 					$citation_block = str_replace(' ','',$citation_block);//remove all whitespace
 					list($trash,$pmid) = explode('=',$citation_block);
-		//			echo "The PMID is $pmid. Whos is a badass?<br>";
+		//				echo "The PMID is $pmid. Whos is a badass?<br>";
+	
+					if(is_numeric($pmid)){
 
-					//The code to fetch the abstracts from PubMed.
-					if(isset($abstract_cache[$pmid])){
-						$pubmed_abstracts[$line_number][$template_number]['abstract'] = $abstract_cache[$pmid];
-					}else{
-						$this_abstract = file_get_contents("$abstract_base_url$pmid");
-						//echo "$this_abstract<br>";
-						$abstract_cache[$pmid] = $this_abstract;
-						$pubmed_abstracts[$line_number][$template_number]['abstract'] = $this_abstract;		
-					}
-
-					//The code to fetch the review status of the article...
-                                        if(isset($summary_cache[$pmid])){
-                                                $pubmed_abstracts[$line_number][$template_number]['is_review'] = $summary_cache[$pmid];
-                                        }else{
-						$this_summary_json = file_get_contents("$summary_base_url$pmid");
-						//echo "$this_summary_json<br>";
-						$this_summary = json_decode($this_summary_json,true);
-						if(isset($this_summary['result'][$pmid]['pubtype']['Review'])){
-							$is_review = true;
+						//The code to fetch the abstracts from PubMed.
+						if(isset($abstract_cache[$pmid])){
+							$pubmed_abstracts[$line_number][$template_number]['abstract'] = $abstract_cache[$pmid];
 						}else{
-							$is_review = false;
+							$this_abstract = file_get_contents("$abstract_base_url$pmid");
+							//echo "$this_abstract<br>";
+							$abstract_cache[$pmid] = $this_abstract;
+							$pubmed_abstracts[$line_number][$template_number]['abstract'] = $this_abstract;		
 						}
 
-                                                $summary_cache[$pmid] = $is_review;
-                                                $pubmed_abstracts[$line_number][$template_number]['is_review'] = $is_review;             
-                                        }			
+						//The code to fetch the review status of the article...
+                                        	if(isset($summary_cache[$pmid])){
+                                                	$pubmed_abstracts[$line_number][$template_number]['is_review'] = $summary_cache[$pmid];
+                                        	}else{
+							$this_summary_json = file_get_contents("$summary_base_url$pmid");
+							//echo "$this_summary_json<br>";
+							$this_summary = json_decode($this_summary_json,true);
+							if(isset($this_summary['result'][$pmid]['pubtype']['Review'])){
+								$is_review = true;
+							}else{
+								$is_review = false;
+							}
+
+                                                	$summary_cache[$pmid] = $is_review;
+                                                	$pubmed_abstracts[$line_number][$template_number]['is_review'] = $is_review;             
+                                        	}			
 					
+					}else{
+						//this is a shitty pmid... I have no idea what to make of it...
+					}
 
 				}
 			}
@@ -270,6 +292,8 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
 	header('Content-Type: application/json');
 	echo $data_json;
 
+	//now lets save the cache
+	file_put_contents($tmp_file,$data_json);
 
 
 //returns false if not a heading line  
