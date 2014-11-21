@@ -1,6 +1,14 @@
 <?php
 	$title = $_GET['title'];
 
+	if(isset($_GET['oldid'])){
+
+		$oldid_url = "&oldid=".$_GET['oldid'];
+	}else{
+		$oldid_url = '';
+	}
+	
+	$data_source_url = "http://spadeserver.ft1.us/parse_references.php?title=$title$oldid_url";
 
 echo '
 <html><head>
@@ -39,20 +47,25 @@ echo '
         <h3>Spade Wikipedia to PubMed Reference checker</h3>
 	<p> 
 This project is mashup of the Wikipedia and PubMed API. Using this, we can see statistics on the types and quality of medical references on a medical wikipedia article.
-
+<ul>
+<li>
+<a href="https://en.wikipedia.org/wiki/'.$title.'"> Original Article</a>
+</li>
+<li>
+<a href="'.$data_source_url.'"> Data Source URL </a>
+</li>
 	</p>
       </div>
     </div>
-<table border="thin" width="95%">
+<table border="thin" style="word-wrap:break-word; table-layout: fixed; width: 1200px">
 <tr>
-<th> Line Number</th>
 <th> Wiki Text </th>
 <th> Wiki HTML </th>
 <th> PubMed API Results </th>
 </tr>
 ';
 
-	$reference_json = file_get_contents("http://spadeserver.ft1.us/parse_references.php?title=$title");
+	$reference_json = file_get_contents($data_source_url);
 	$data = json_decode($reference_json,true);
 foreach($data as $line_number => $this_line_data){
 
@@ -80,10 +93,8 @@ function print_row($line_number,$wiki_text,$wiki_html,$abstract_text){
 
 	echo "
 <tr>
-<td width='10%' valign='top'>
-Line $line_number
-</td>
 <td width='20%' valign='top'>
+<h1>Line $line_number</h1>
 $wiki_text
 </td>
 <td width='40%' valign='top'>
