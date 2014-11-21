@@ -54,6 +54,9 @@ This project is mashup of the Wikipedia and PubMed API. Using this, we can see s
 <li>
 <a href="'.$data_source_url.'"> Data Source URL </a>
 </li>
+<li>
+<a href="/wiki_test.php?title='.$title.$oldid_url.'"> Wikipedia Raw API result</a>
+</li>
 	</p>
       </div>
     </div>

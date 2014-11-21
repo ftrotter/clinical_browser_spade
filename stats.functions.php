@@ -24,7 +24,7 @@
 			'total_citations' => $total_citations,
 			'total_journal_citations' => $total_journal_citations,
 			'total_pmid_citations' => $total_pmid_citations,
-			'total_review_citations' => $total_review_citations,
+			//'total_review_citations' => $total_review_citations,
 			'total_book_citations' => $total_book_citations,
 			'total_web_citations' => $total_web_citations,
 			'total_sections' => $total_sections,

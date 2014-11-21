@@ -55,18 +55,36 @@ function get_redirect($wiki_json){
 	return($new_string); //we return only the first match... 
 
 }
+
+
+function get_wiki_api_url($title,$revision_id = null){
+
+                if(is_null($revision_id)){
+                        //we do nothing
+                        $url_parameters = "&titles=$title";
+                }else{
+                        $url_parameters = "&revids=$revision_id";
+                }
+
+                $api_url = "http://en.wikipedia.org/w/api.php?format=json&action=query$url_parameters";
+                $api_url .= "&prop=revisions&rvprop=content";
+
+		return($api_url);
+}
+
+
 /*
  * Given a particular title of a wikipage, download the JSON representation...
  */
-function download_wiki_result($title){
+function download_wiki_result($title,$id_to_get = null){
+
+		$api_url = get_wiki_api_url($title,$id_to_get);
 
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
                 curl_setopt($ch, CURLOPT_USERAGENT,
                         'ClincalSpade/1.0 (http://www.fredtrotter.com/; fred.trotter@gmail.com)');
 
-                $api_url = "http://en.wikipedia.org/w/api.php?format=json&action=query&titles=$title";
-                $api_url .= "&prop=revisions&rvprop=content";
                 curl_setopt($ch, CURLOPT_URL, $api_url);
                 $result = curl_exec($ch);
                 if (!$result) {

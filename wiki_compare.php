@@ -9,6 +9,8 @@
 	$oldid_url = "http://spadeserver.ft1.us/parse_references.php?title=$title&oldid=$oldid";
 	$diff_url = "http://spadeserver.ft1.us/parse_references.php?title=$title&oldid=$diff";
 
+	$oldid_test_url = "http://spadeserver.ft1.us/wiki_test.php?title=$title&oldid=$oldid";
+	$diff_test_url = "http://spadeserver.ft1.us/wiki_test.php?title=$title&oldid=$diff";
 
 
 
@@ -59,13 +61,25 @@ This project is mashup of the Wikipedia and PubMed API. Using this, we can see s
 <a href="'.$oldid_url.'">Old ID Data UrL </a>
 </li>
 <li>
+<a href="'.$oldid_test_url.'"> OldID Wikipedia Raw API result</a>
+</li>
+<li>
 <a href="'.$diff_url.'">Diff Data UrL </a>
+</li>
+<li>
+<a href="'.$diff_test_url.'"> Diff Wikipedia Raw API result</a>
 </li>
 </ul>
 	</p>
       </div>
     </div>
 <div>
+<table width="100%">
+<tr>
+<th> Data from the Old Page ('.$oldid.') </th>
+<th> Data From the Current Page ('.$diff.') </th>
+</tr>
+<tr>
 ';
 
 	$reference_json_oldid = file_get_contents($oldid_url);
@@ -74,19 +88,27 @@ This project is mashup of the Wikipedia and PubMed API. Using this, we can see s
 	$data_oldid = json_decode($reference_json_oldid,true);
 	$data_diff = json_decode($reference_json_diff,true);
 
-	echo "<pre>";
+	echo "<td><ul>";
 	$oldid_stats = run_all_stats($data_oldid);
-	var_export($oldid_stats);
+	foreach($oldid_stats as $key => $value){
+		echo "<li> $key: <b>$value</b> </li>";
+	}
+
+	echo "</ul></td> <td> <ul>";
 
 	$diff_stats = run_all_stats($data_diff);
-	var_export($diff_stats);
+	foreach($diff_stats as $key => $value){
+		echo "<li> $key: <b>$value</b> </li>";
+	}
 	
-	echo "</pre>";
+	echo "</ul></pre>";
 
 
 
 
 echo '
+</tr>
+</table>
 </div>
 
     </div> <!-- /container -->
