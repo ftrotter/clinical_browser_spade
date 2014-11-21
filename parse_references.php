@@ -15,15 +15,19 @@
 	$json = download_wiki_result($title,$id_to_get);
 	//first lets check the cache...
 
+	$force = false;
+
 	$tmp_file = "./tmp/$title.$id_to_get.json";
 
-	if(file_exists($tmp_file)){ //lets use the cache...
-		$title_json = file_get_contents($tmp_file);		
-		header('Content-Type: application/json');
-		echo $title_json;
-		exit();
-	}
+	if(!isset($_GET['force']) && !$force){
 
+		if(file_exists($tmp_file)){ //lets use the cache...
+			$title_json = file_get_contents($tmp_file);		
+			header('Content-Type: application/json');
+			echo $title_json;
+			exit();
+		}
+	}
 
 	$wiki_text = get_wikitext_from_json($json);
 
@@ -54,14 +58,27 @@
 	//First lets understand the structure of the document by searching for heading tags..
 
 	$all_templates = array();
+	$all_citations = array();
 	$all_links = array();
 	$section_map = array();
 	$processed_wiki_text = array();
 	$wiki_html = array();
-	
+	$all_metadata = array();	
 
 
 	foreach($wiki_lines as $line_number => $this_wiki_line){
+
+		//lets empty the metadata...
+		$all_metadata[$line_number] = array(
+			'link_count' => 0,
+			'link_label_count' => 0,
+			"reference_count_journal" => 0,
+            		"reference_count_journal_pmid" => 0,
+            		"reference_count_journal_review" => 0,
+            		"reference_count_book" => 0,
+            		"reference_count_web" => 0,
+			"section" => ''
+			);
 
 
 		//first lets get parsoid to tell is what html this would have all by itself
@@ -101,6 +118,7 @@
 				//	echo "</pre>";
 		
 					$all_templates[$line_number] = $matches[1];				
+
 				
 					//Now we replace the templates with A Token string
 					$this_wiki_line = preg_replace($regex," |||TEMPLATE||| ",$this_wiki_line);
@@ -134,6 +152,26 @@
 
 	}//end foreach wiki_line
 
+// Before data mining on wikipedia lets do some basic data about the links
+foreach($all_links as $line_number => $links){
+
+	$link_count = count($links);
+	$labeled_links = 0;
+
+	foreach($links as $linktext){
+		if(strpos($linktext,'|') !== false){
+			//then this link has a label!!
+			$labeled_links++;
+		}
+	}
+
+	$all_metadata[$line_number]['link_count'] = $link_count;
+	$all_metadata[$line_number]['link_labeled_count'] = $labeled_links;
+
+}
+
+
+
 $pubmed_abstracts = array();
 $pubmed_review_status = array();
 //use parsoidapi to get the html5 from the original wikitext...
@@ -152,6 +190,12 @@ $summary_base_url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?
 //echo "<pre>";
 foreach($all_templates as $line_number => $this_template_array){
 
+	$line_book_count = 0;
+	$line_journal_count = 0;
+	$line_web_count = 0;
+	$line_journal_pmid_count = 0;
+	$line_journal_review_count = 0;
+
 	foreach($this_template_array as $template_number => $a_template){
 		//but it is a journal citation?
 		$is_journal = false;
@@ -160,6 +204,7 @@ foreach($all_templates as $line_number => $this_template_array){
 
 		$is_citation = strpos(strtolower($a_template),'cite ');
 		if($is_citation !== false){ //because it will often be '0'
+			$all_citations[$line_number][] = $a_template;
 			$total_citations++;
 			$is_citation = true;
 			$is_journal = strpos(strtolower($a_template),'journal');
@@ -179,7 +224,7 @@ foreach($all_templates as $line_number => $this_template_array){
 		//				echo "The PMID is $pmid. Whos is a badass?<br>";
 	
 					if(is_numeric($pmid)){
-
+						$line_journal_pmid_count++;
 						//The code to fetch the abstracts from PubMed.
 						if(isset($abstract_cache[$pmid])){
 							$pubmed_abstracts[$line_number][$template_number]['abstract'] = $abstract_cache[$pmid];
@@ -198,6 +243,7 @@ foreach($all_templates as $line_number => $this_template_array){
 							//echo "$this_summary_json<br>";
 							$this_summary = json_decode($this_summary_json,true);
 							if(isset($this_summary['result'][$pmid]['pubtype']['Review'])){
+								$line_journal_review_count++;
 								$is_review = true;
 							}else{
 								$is_review = false;
@@ -219,21 +265,32 @@ foreach($all_templates as $line_number => $this_template_array){
 		}
 
 		if($is_book){
+			$line_book_count++;
 			$total_book_citations++;
 		}
 
 		if($is_web){
+			$line_web_count++;
 			$total_web_citations++;
 		}
 
 		if($is_journal){
+			$line_journal_count++;
 			$total_journal_citations++;
 		}
 
 
-	}
+	}//all templates on this line...
 
-}
+
+	$all_metadata[$line_number]['reference_count_journal'] = $line_journal_count;
+	$all_metadata[$line_number]['reference_count_journal_pmid'] = $line_journal_pmid_count;
+	$all_metadata[$line_number]['reference_count_journal_review'] = $line_journal_review_count;
+	$all_metadata[$line_number]['reference_count_book'] = $line_book_count;
+	$all_metadata[$line_number]['reference_count_web'] = $line_web_count;
+
+
+}// all lines
 //echo "</pre>";
 
 
@@ -242,6 +299,8 @@ foreach($all_templates as $line_number => $this_template_array){
 $data = array();
 foreach($wiki_lines as $line_number => $this_wiki_line){
 	
+	$all_metadata[$line_number]['section'] = $section_map[$line_number];
+
 	if(isset($processed_wiki_text[$line_number])){
 		$this_processed_text = $processed_wiki_text[$line_number];
 	}else{
@@ -260,6 +319,18 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
                 $this_templates = array();
         }
 
+        if(isset($all_metadata[$line_number])){
+                $this_metadata = $all_metadata[$line_number];
+        }else{
+                $this_metadata = array();
+        }
+
+        if(isset($all_citations[$line_number])){
+                $this_citations = $all_citations[$line_number];
+        }else{
+                $this_citations = array();
+        }
+
         if(isset($pubmed_abstracts[$line_number])){
                 $this_abstracts = $pubmed_abstracts[$line_number];
         }else{
@@ -273,6 +344,7 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
                 $this_wiki_html = '';
         }
 
+
 	//should always be set...
 	$this_section = $section_map[$line_number];
 
@@ -282,6 +354,8 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
 		'processed_wiki_text' => $this_processed_text,
 		'links' => $this_links,
 		'templates' => $this_templates,
+		'metadata' => $this_metadata,
+		'citations' => $this_citations,
 		'abstracts' => $this_abstracts,
 		'html' => $this_wiki_html,
 		);
@@ -335,7 +409,7 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
 			$is_heading = preg_match($this_regex,$line,$matches);		
 	
 			if($is_heading){
-				return($matches[1]);
+				return(trim($matches[1]));
 			}
 
 
