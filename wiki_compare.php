@@ -1,5 +1,6 @@
 <?php
-	require_once('stats.functions.php');
+	require_once('stats.functions.php');	
+	require_once('parse_references.functions.php');
 	$title = $_GET['title'];
 
 	$diff = $_GET['diff'];
@@ -16,6 +17,8 @@
 
 echo '
 <html><head>
+<title> Compare '.$title.' between ('.$oldid.') and ('.$diff.') </title>
+
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 
@@ -37,7 +40,7 @@ echo '
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Spade Wikipedia Reference Checker</a>
+          <a class="navbar-brand" href="#">Mining '.$title.'</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
         </div><!--/.navbar-collapse -->
@@ -47,29 +50,14 @@ echo '
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-	<h1>Mining '.$title.'</h1>
-        <h3>Spade Wikipedia to PubMed Reference checker</h3>
-	<p> 
-This project is mashup of the Wikipedia and PubMed API. Using this, we can see statistics on the types and quality of medical references on a medical wikipedia article.
-<ul>
-<li>
+<h2> '.$title.' </h2> <h3> between versions '.$oldid.' and '.$diff.' </h3>
+<p>
 <a href="https://en.wikipedia.org/wiki/'.$title.'"> Original Article</a>
-</li>
-<li> <a href="https://en.wikipedia.org/w/index.php?title=Amyloidosis&diff='.$diff.'&oldid='.$oldid.'">Wikipedias Diff Tool</a>
-</li>
-<li>
-<a href="'.$oldid_url.'">Old ID Data UrL </a>
-</li>
-<li>
-<a href="'.$oldid_test_url.'"> OldID Wikipedia Raw API result</a>
-</li>
-<li>
-<a href="'.$diff_url.'">Diff Data UrL </a>
-</li>
-<li>
-<a href="'.$diff_test_url.'"> Diff Wikipedia Raw API result</a>
-</li>
-</ul>
+| <a href="https://en.wikipedia.org/w/index.php?title=Amyloidosis&diff='.$diff.'&oldid='.$oldid.'">Wikipedias Diff Tool</a>
+| <a href="'.$oldid_url.'">Old ID Data UrL </a>
+| <a href="'.$oldid_test_url.'"> OldID Wikipedia Raw API result</a>
+| <a href="'.$diff_url.'">Diff Data UrL </a>
+| <a href="'.$diff_test_url.'"> Diff Wikipedia Raw API result</a>
 	</p>
       </div>
     </div>
@@ -82,8 +70,8 @@ This project is mashup of the Wikipedia and PubMed API. Using this, we can see s
 <tr>
 ';
 
-	$reference_json_oldid = file_get_contents($oldid_url);
-	$reference_json_diff = file_get_contents($diff_url);
+	$reference_json_oldid = parse_these_references($title,$oldid);
+	$reference_json_diff = 	parse_these_references($title,$diff);
 
 	$data_oldid = json_decode($reference_json_oldid,true);
 	$data_diff = json_decode($reference_json_diff,true);

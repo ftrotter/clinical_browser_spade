@@ -1,14 +1,17 @@
 <?php
+	require_once('parse_references.functions.php');
+
 	$title = $_GET['title'];
 
 	if(isset($_GET['oldid'])){
-
-		$oldid_url = "&oldid=".$_GET['oldid'];
+		$oldid = $_GET['oldid'];
+		$oldid_url = "&oldid=$oldid";
 	}else{
-		$oldid_url = '';
+		$oldid = 0;
+		$oldid_url = "";
 	}
 	
-	$data_source_url = "http://spadeserver.ft1.us/parse_references.php?title=$title$oldid_url";
+	$data_source_url = "http://spadeserver.ft1.us/parse_references.php?title=$title$oldid_url";	
 
 echo '
 <html><head>
@@ -68,7 +71,7 @@ This project is mashup of the Wikipedia and PubMed API. Using this, we can see s
 </tr>
 ';
 
-	$reference_json = file_get_contents($data_source_url);
+	$reference_json = parse_these_references($title,$oldid);
 	$data = json_decode($reference_json,true);
 foreach($data as $line_number => $this_line_data){
 
