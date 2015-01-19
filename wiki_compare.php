@@ -3,8 +3,21 @@
 	require_once('parse_references.functions.php');
 	$title = $_GET['title'];
 
-	$diff = $_GET['diff'];
+	if(isset($_GET['diff'])){
+		$diff = $_GET['diff'];
+	}
+	
+	if(isset($_GET['newid'])){
+		$diff = $_GET['newid'];
+	}
+	
+
 	$oldid = $_GET['oldid'];
+
+	if($oldid > $diff){
+		echo "The oldid should be lower than the newid\n";
+		exit();
+	}
 
 
 	$oldid_url = "http://spadeserver.ft1.us/parse_references.php?title=$title&oldid=$oldid";
