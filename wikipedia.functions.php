@@ -83,12 +83,12 @@ function download_wiki_result($title,$id_to_get = null){
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
                 curl_setopt($ch, CURLOPT_USERAGENT,
-                        'ClincalSpade/1.0 (http://www.fredtrotter.com/; fred.trotter@gmail.com)');
+                        'MET/1.0 (http://www.fredtrotter.com/; fred.trotter@gmail.com)');
 
                 curl_setopt($ch, CURLOPT_URL, $api_url);
                 $result = curl_exec($ch);
-                if (!$result) {
-                        exit('cURL Error: '.curl_error($ch));
+                if(curl_error($ch)) {
+                        exit('wikipedia.functions.php cURL Error: '.curl_error($ch)."<br> hitting $api_url");
                 }
 
 		if(is_redirect($result)){ //sometimes wiki pages are just stubs that redirect
