@@ -59,14 +59,14 @@ function get_redirect($wiki_json){
 
 function get_wiki_api_url($title,$revision_id = null){
 
-                if(is_null($revision_id)){
+                if(is_null($revision_id) || $revision_id == 0){
                         //we do nothing
                         $url_parameters = "&titles=$title";
                 }else{
                         $url_parameters = "&revids=$revision_id";
                 }
 
-                $api_url = "http://en.wikipedia.org/w/api.php?format=json&action=query$url_parameters";
+                $api_url = "https://en.wikipedia.org/w/api.php?format=json&action=query$url_parameters";
                 $api_url .= "&prop=revisions&rvprop=content";
 
 		return($api_url);
@@ -77,6 +77,33 @@ function get_wiki_api_url($title,$revision_id = null){
  * Given a particular title of a wikipage, download the JSON representation...
  */
 function download_wiki_result($title,$id_to_get = null){
+
+
+		$wiki_tmp_file = "./tmp/$title.$id_to_get.wiki.json";
+		if($id_to_get != 0){
+			if(file_exists($wiki_tmp_file)){
+				$json = file_get_contents($wiki_tmp_file);
+				return($json);
+			}
+		}else{
+			//if we get here then we are looking for the current version of the file...
+			if(file_exists($wiki_tmp_file)){
+				$file_mod_time = filemtime($wiki_tmp_file);
+				$now_time = time();
+				$age_in_seconds = $now_time - $file_mod_time;
+				$seconds_in_a_day = 86400;
+				if($age_in_seconds < $seconds_in_a_day){
+					//then we have already used the API for this today...
+					//lets just return the cache...
+					$json = file_get_contents($wiki_tmp_file);
+					return($json);
+				}else{
+					//then our cache is old.. we need to re-download...
+				}
+
+			}
+		}
+
 
 		$api_url = get_wiki_api_url($title,$id_to_get);
 
@@ -91,6 +118,13 @@ function download_wiki_result($title,$id_to_get = null){
                         exit('wikipedia.functions.php cURL Error: '.curl_error($ch)."<br> hitting $api_url");
                 }
 
+		if(!$result){
+			echo "wikipedia.functions.php negative result from title of: $title url: <a href='$api_url'>$api_url</a>";
+			echo "<pre>";
+			var_export(curl_getinfo($ch));
+			exit();
+		}
+
 		if(is_redirect($result)){ //sometimes wiki pages are just stubs that redirect
 					//the web user just sees the right page...
 					//but the API actually returns the redirect...
@@ -98,6 +132,7 @@ function download_wiki_result($title,$id_to_get = null){
 			$result = download_wiki_result($redirect_to); //this returns the wiki_json for the right title.
 		}
 
+		file_put_contents($wiki_tmp_file,$result);
 		return($result);
 
 }
