@@ -58,13 +58,14 @@
 				*/
 				
 				$importance = $all_cells[2]->plaintext;
-				$grade = $all_cells[4]->plaintext;
+				$quality = $all_cells[4]->plaintext;
 				$release_score = $all_cells[8]->plaintext;
 				$result_array[] = [
 					'name' => $my_name,
+					'project' => $project,
 					'url' => $my_url,
 					'importance' => $importance,
-					'grade' => $grade,
+					'quality' => $quality,
 					'release_score' => $release_score,
 					];
 				
