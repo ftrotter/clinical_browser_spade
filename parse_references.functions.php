@@ -4,23 +4,91 @@
 	require_once('simple_html_dom.php');
 
 
+
+	function test_fix_ref_tag(){
+
+
+		$variations = [
+		"<ref>",
+		"<ref name='with-dashes'>",
+		"<ref name=with-dashes>",
+		"<ref name=something >",
+		"<ref name=something\>",
+		"<ref name=else \>",
+		"<ref name=else >",
+                '<ref name="something" >',
+                '<ref name="something"\>',
+                '<ref name="else" \>',
+                '<ref name="else" >',
+		'</ref>',
+
+		];
+
+		$random_text = [
+		"ipso lorem",
+		"weraf ra erg aas",
+		];
+
+		$test_us = [];
+		foreach($variations as $top_variation){
+			foreach($variations as $botton_variation){
+				foreach($random_text as $rt){
+					$test_us[] = "$rt $top_variation $rt $bottom_variation $rt";		
+				
+				}	
+			}
+		}
+
+		foreach($test_us as $test_this){
+			$result = fix_ref_tag($test_this);
+			echo "changes \n\t$test_this to \n\t $result\n";
+		}
+
+
+	}
+
+
+	function fix_ref_tag($wiki_line){
+
+
+        	$re1='.*?';     # Non-greedy match on filler
+        	$re2='(<ref[^>]+>)';    # Tag 1
+
+        	if ($c=preg_match_all ("/".$re1.$re2."/is", $this_line, $matches))
+        	{
+                	$this_match =$matches[1][0];
+        	}
+
+		
+
+
+	}
+
+	
+
+
 	
 	function parse_these_references($title,$id_to_get){
 
-	$json = download_wiki_result($title,$id_to_get);
-	//first lets check the cache...
 
 	$force = false;
 
-	$tmp_file = "./tmp/$title.$id_to_get.json";
+	$summary_tmp_file = "./tmp/$title.$id_to_get.summary.json";
 
 	if(!isset($_GET['force']) && !$force){
-
-		if(file_exists($tmp_file)){ //lets use the cache...
-			$title_json = file_get_contents($tmp_file);		
+		if(file_exists($summary_tmp_file)){ //lets use the cache...
+			$title_json = file_get_contents($summary_tmp_file);		
 	//		header('Content-Type: application/json');
 			return($title_json);
 		}
+	}
+
+	//we also cache the wiki file... but download_wiki_result knows how to do that!!
+	$json = download_wiki_result($title,$id_to_get);
+
+	if(strlen($json) == 0){
+		echo "parse_these_references ERROR: download_wiki_result returning blank";
+		exit();
 	}
 
 	$wiki_text = get_wikitext_from_json($json);
@@ -34,19 +102,49 @@
 	}
 
 
+	//these remove the newlines from within the templates, which makes new lines parseable later...
 	$new_wiki_text = compress_wikitext('{{','}}',$wiki_text);
 	$new_wiki_text = compress_wikitext('{|','|}',$new_wiki_text);
+
+	
+	//here we are going to convert all of the <ref links to normal wiki references...
+	//so that we can properly associate them with the various lines...
+/*
+	echo "<pre>";
+	echo htmlentities($new_wiki_text);
+	echo "</pre><br><br>";
+*/
+	$html = str_get_html($new_wiki_text);
+
+	$ref_array = [];
+	$ref_count = [];
+	foreach($html->find('ref') as $this_ref){	
+		if(strlen($this_ref->plaintext) > 0){
+			//then this is destination...
+			$ref_array[$this_ref->name] = $this_ref->plaintext;
+		}else{
+			if(isset($ref_count[$this_ref->name])){
+				$ref_count[$this_ref->name]++;
+			}else{
+				$ref_count[$this_ref->name] = 1;
+			}	
+		}
+	}	
+
+//	echo "<pre>";
+//	var_export($ref_array);
+//	var_export($ref_count);
+
+
+//	exit();
+
+
 
 //	echo "<br><pre>$new_wiki_text</pre>";
 
 
-
-
-	$parsoid_url = "http://parsoid-lb.eqiad.wikimedia.org/enwiki/";
-
-
+	//the staring default...
 	$last_section = "Introduction";
-
 
 	$wiki_lines = explode("\n",$new_wiki_text);
 	//First lets understand the structure of the document by searching for heading tags..
@@ -58,7 +156,6 @@
 	$processed_wiki_text = array();
 	$wiki_html = array();
 	$all_metadata = array();	
-
 
 	foreach($wiki_lines as $line_number => $this_wiki_line){
 
@@ -77,15 +174,10 @@
 
 		//first lets get parsoid to tell is what html this would have all by itself
 	
-		$parsoid_data = array(
-			'wt' => $this_wiki_line,
-			'body' => 1,
-		);
-
 		//this is pretty slow...
 		$mine_wiki = true;
 		if($mine_wiki){
-			$parsoid_html = post_to_url($parsoid_url,$parsoid_data);
+			$parsoid_html = get_html_from_parsoid($this_wiki_line); 
 			$wiki_html[$line_number] = $parsoid_html;
 		}
 		$is_heading = is_heading_line($this_wiki_line);
@@ -222,7 +314,13 @@ foreach($all_templates as $line_number => $this_template_array){
 						if(isset($abstract_cache[$pmid])){
 							$pubmed_abstracts[$line_number][$template_number]['abstract'] = $abstract_cache[$pmid];
 						}else{
-							$this_abstract = file_get_contents("$abstract_base_url$pmid");
+							$abstract_tmp_file = "./tmp/$pmid.abstract.txt";
+							if(file_exists($abstract_tmp_file)){
+								$this_abstract = file_get_contents($abstract_tmp_file);
+							}else{
+								$this_abstract = file_get_contents("$abstract_base_url$pmid");
+								file_put_contents($abstract_tmp_file,$this_abstract);
+							}
 							//echo "$this_abstract<br>";
 							$abstract_cache[$pmid] = $this_abstract;
 							$pubmed_abstracts[$line_number][$template_number]['abstract'] = $this_abstract;		
@@ -232,7 +330,13 @@ foreach($all_templates as $line_number => $this_template_array){
                                         	if(isset($summary_cache[$pmid])){
                                                 	$pubmed_abstracts[$line_number][$template_number]['is_review'] = $summary_cache[$pmid];
                                         	}else{
-							$this_summary_json = file_get_contents("$summary_base_url$pmid");
+							$summary_tmp_file = "./tmp/$pmid.summary.json";
+							if(file_exists($summary_tmp_file)){
+								$this_summary_json = file_get_contents($summary_tmp_file);	
+							}else{
+								$this_summary_json = file_get_contents("$summary_base_url$pmid");
+								file_put_contents($summary_tmp_file,$this_summary_json);
+							}
 							//echo "$this_summary_json<br>";
 							$this_summary = json_decode($this_summary_json,true);
 							if(isset($this_summary['result'][$pmid]['pubtype']['Review'])){
@@ -341,8 +445,9 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
 	//should always be set...
 	$this_section = $section_map[$line_number];
 
-
-	$data[$line_number] = array(
+	if(strlen($this_wiki_line) > 0){
+	$data[] = array(
+		'line_number' => $line_number,
 		'original_wiki_text' => $this_wiki_line,
 		'processed_wiki_text' => $this_processed_text,
 		'links' => $this_links,
@@ -352,13 +457,13 @@ foreach($wiki_lines as $line_number => $this_wiki_line){
 		'abstracts' => $this_abstracts,
 		'html' => $this_wiki_html,
 		);
-
+	}
 }
 
 	$data_json = json_encode($data,JSON_PRETTY_PRINT);
 
 	//now lets save the cache
-	file_put_contents($tmp_file,$data_json);
+	file_put_contents($summary_tmp_file,$data_json);
 
 	return($data_json);
 
@@ -501,6 +606,24 @@ function post_to_url($url, $data) {
    return($result);
 
 }
+
+
+	function get_html_from_parsoid($wiki_text){
+
+		$parsoid_url = "http://parsoid-lb.eqiad.wikimedia.org/enwiki/";
+
+                $parsoid_data = array(
+                        'wt' => $wiki_text,
+                        'body' => 1,
+                );
+
+		$parsoid_html = post_to_url($parsoid_url,$parsoid_data);
+		
+
+		return($parsoid_html);
+
+
+	}
 
 
 
